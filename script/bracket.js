@@ -14,7 +14,10 @@ export class Bracket {
         shuffleArray(songsShuffled);
         this.songsShuffled = songsShuffled;
 
-        const levels = 32 - Math.clz32(songs.length);
+        // TODO replace this. This is really ugly
+        let levels = 32 - Math.clz32(songs.length);
+        // When the amount of songs is a power of 2, don't round up:
+        if ((songs.length << 1) === (1 << levels)) --levels;
 
         this.currentRound = -1;
         this.generatedMatchups = [];
