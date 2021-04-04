@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style/tournament.css">
 
     <script type="module" src="script/bracket.js"></script>
+    <script type="module" src="script/step1.js"></script>
     <script type="module" src="script/main.js"></script>
 </head>
 <body>
@@ -33,50 +34,34 @@
             </div>
 
             <div id="step1" class="hidden">
-                <h2>Step 1: select an album</h2>
-                <label for="albumid">Enter an album URL or ID here</label><br>
+                <h2>Step 1: select an album or a playlist</h2>
+
+                <div id="step1-objtype-container">
+                    <input type="radio" id="objtype1" name="objectType" value="album" checked>
+                    <label for="objtype1">Album</label>
+
+                    <input type="radio" id="objtype2" name="objectType" value="playlist">
+                    <label for="objtype2">Playlist</label>
+
+                    <!--                    <input type="radio" id="objtype3" name="objectType" value="artist">-->
+                    <!--                    <label for="objtype3">Artist</label>-->
+                </div>
+
+                <label for="albumid"></label><br>
                 <div>
                     <input id="albumid" type="text">
                     <button id="fetch">Fetch</button>
                 </div>
                 <div id="album-info-container" class="hidden">
-                    <h3>Album information</h3>
+                    <h3>Object information</h3>
                     <div id="album-info-flex">
                         <table>
-                            <tbody>
-                            <tr>
-                                <th scope="row">Title</th>
-                                <td id="album-title-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Type</th>
-                                <td id="album-type-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Artists</th>
-                                <td id="album-artists-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Label</th>
-                                <td id="album-label-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Track count</th>
-                                <td id="album-tracks-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Release date</th>
-                                <td id="album-date-data"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">ID (Spotify URI)</th>
-                                <td id="album-uri-data"></td>
-                            </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                         <div id="album-image"></div>
                     </div>
                 </div>
+
                 <button id="next">Next</button>
             </div>
 
@@ -112,11 +97,13 @@
                             <div id="step2-matchup-items">
                                 <div id="step2-item-left">
                                     <p id="step2-item-left-title"></p>
+                                    <p id="step2-item-left-artists"></p>
                                     <a class="play">Play on Spotify (requires active device)</a>
                                 </div>
                                 <div class="vs">vs.</div>
                                 <div id="step2-item-right">
                                     <p id="step2-item-right-title"></p>
+                                    <p id="step2-item-right-artists"></p>
                                     <a class="play">Play on Spotify (requires active device)</a>
                                 </div>
                             </div>

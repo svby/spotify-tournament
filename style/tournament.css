@@ -53,25 +53,35 @@ button {
 }
 
 /* Step 1 */
+#step1-objtype-container {
+    margin: 20px 0;
+}
+
+#step1-objtype-container input:first-of-type {
+    margin-left: 0;
+}
+
 #album-info-container.hidden {
     display: none;
 }
 
 #album-info-container table {
-    border-spacing: 20px 0;
+    border-spacing: 10px 0;
+    flex: none;
+    align-self: start;
 }
 
 #album-info-container table th {
     text-align: right;
+    vertical-align: top;
+}
+
+#album-info-container table td {
+    vertical-align: top;
 }
 
 #album-uri-data {
     font-family: monospace;
-}
-
-#album-info-container table {
-    flex: none;
-    align-self: start;
 }
 
 #album-image {
@@ -79,14 +89,21 @@ button {
     min-width: 0;
 }
 
-#album-image img {
-    max-width: 100%;
-}
-
 #album-info-flex {
     display: flex;
+    justify-content: space-between;
     flex-direction: row;
     align-items: center;
+}
+
+#album-info-flex table {
+    flex-basis: 0;
+    flex-grow: 1;
+}
+
+#album-image img {
+    flex-shrink: 1;
+    max-width: 300px;
 }
 
 /* Step 2 */
@@ -177,7 +194,11 @@ button {
 }
 
 #step2-matchup-current p {
-    margin: 0 0 20px;
+    margin: 5px 0 20px;
+}
+
+#step2-matchup-current p:first-of-type {
+    margin: 0;
 }
 
 #step2-selector {

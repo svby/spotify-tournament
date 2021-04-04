@@ -1,4 +1,5 @@
 import {Bracket} from "./bracket.js";
+import {extractDisplayFields} from "./step1.js";
 
 let token;
 let tokenExpiry = 0;
@@ -118,8 +119,10 @@ let selectCallback;
 let roundCallback;
 let playCallback;
 let matchupCallback;
+let objtypeCallback;
 
 let winner;
+let objtype;
 
 function toggleStep(step) {
     currentStep = step;
@@ -137,48 +140,104 @@ function toggleStep(step) {
     switch (step) {
         case 0: {
             // Step 1
+            const getObjtype = () => {
+                return document.querySelector("input[name=objectType]:checked")?.value ?? "album";
+            };
+
+            const updateObjtype = () => {
+                const label = document.querySelector("label[for=albumid]")
+                switch (objtype = getObjtype()) {
+                    case "album": {
+                        label.innerText = "Enter an album URL or ID here";
+                        break;
+                    }
+                    case "playlist": {
+                        label.innerText = "Enter a playlist URL or ID here";
+                        break;
+                    }
+                }
+            };
+
+            updateObjtype();
+
+            objtypeCallback = updateObjtype;
+
             const albumidInput = document.querySelector("#albumid");
             const fetchButton = document.querySelector("#fetch");
             const updateAlbumid = (idInput) => {
-                const match = idInput.match(/spotify.com\/album\/([A-Za-z0-9]+)\??/);
-                const id = match ? match[1] : idInput;
+                let dataPromise;
 
                 fetchButton.disabled = true;
-                fetch(`https://api.spotify.com/v1/albums/${id}`, {
-                    method: "GET",
-                    headers: new Headers({
-                        "Authorization": `${token.token_type} ${token.access_token}`
-                    })
-                })
-                    .then(response => response.json())
+
+                switch (objtype) {
+                    case "album": {
+                        const match = idInput.match(/spotify.com\/album\/([A-Za-z0-9]+)\??/);
+                        const id = match ? match[1] : idInput;
+
+                        dataPromise = fetch(`https://api.spotify.com/v1/albums/${id}`, {
+                            method: "GET",
+                            headers: new Headers({
+                                "Authorization": `${token.token_type} ${token.access_token}`
+                            })
+                        })
+                            .then(response => response.json())
+                            .catch(e => {
+                                alert(`Couldn't fetch album: ${e}`);
+                            })
+
+                        break;
+                    }
+                    case "playlist": {
+                        const match = idInput.match(/spotify.com\/playlist\/([A-Za-z0-9]+)\??/);
+                        const id = match ? match[1] : idInput;
+
+                        dataPromise = fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+                            method: "GET",
+                            headers: new Headers({
+                                "Authorization": `${token.token_type} ${token.access_token}`
+                            })
+                        })
+                            .then(response => response.json())
+                            .catch(e => {
+                                alert(`Couldn't fetch playlist: ${e}`);
+                            })
+
+                        break;
+                    }
+                }
+
+                dataPromise
                     .then(data => {
                         if (data.error) {
                             alert(`Error: ${data.error.message}`);
                             return;
                         }
 
+                        console.log(data);
+                        const albumInfoTable = document.querySelector("#album-info-flex tbody");
+                        albumInfoTable.innerHTML = "";
+
+                        const fields = extractDisplayFields(data);
+                        for (const key of Object.keys(fields)) {
+                            const value = fields[key];
+
+                            const tr = document.createElement("tr");
+                            const th = document.createElement("th");
+                            const td = document.createElement("td");
+                            th.innerText = key;
+                            th.scope = "row";
+                            td.innerText = value;
+                            tr.append(th, td);
+                            albumInfoTable.appendChild(tr);
+                        }
+
                         const
                             albumInfoContainer = document.querySelector("#album-info-container"),
-                            albumTitleData = document.querySelector("#album-title-data"),
-                            albumTypeData = document.querySelector("#album-type-data"),
-                            albumArtistsData = document.querySelector("#album-artists-data"),
-                            albumLabelData = document.querySelector("#album-label-data"),
-                            albumTracksData = document.querySelector("#album-tracks-data"),
-                            albumDateData = document.querySelector("#album-date-data"),
-                            albumUriData = document.querySelector("#album-uri-data"),
                             albumImage = document.querySelector("#album-image");
-
-                        albumTitleData.innerText = data.name;
-                        albumTypeData.innerText = data.type;
-                        // TODO link to artist pages?
-                        albumArtistsData.innerText = data.artists.map(a => a.name).join(", ");
-                        albumLabelData.innerText = data.label;
-                        albumTracksData.innerText = `${data.total_tracks}`;
-                        albumDateData.innerText = data.release_date;
-                        albumUriData.innerText = data.uri;
 
                         {
                             albumImage.innerHTML = "";
+
                             const img = document.createElement("img");
                             img.src = data.images[0].url;
                             albumImage.appendChild(img);
@@ -187,9 +246,6 @@ function toggleStep(step) {
                         albumInfoContainer.classList.remove("hidden");
 
                         selectedAlbum = data;
-                    })
-                    .catch(e => {
-                        alert(`Couldn't fetch album: ${e}`);
                     })
                     .finally(() => fetchButton.disabled = false);
             };
@@ -213,9 +269,25 @@ function toggleStep(step) {
         case 1: {
             // Step 2
             const albumTitle = document.querySelector("#step2-album-title");
-            albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.artists.map(a => a.name).join(", ")}`;
 
-            const bracket = new Bracket(selectedAlbum.tracks.items);
+            let bracket;
+            switch (selectedAlbum.type) {
+                case "album": {
+                    albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.artists.map(a => a.name).join(", ")}`;
+                    bracket = new Bracket(selectedAlbum.tracks.items);
+
+                    break;
+                }
+                case "playlist": {
+                    // TODO fetch paginated (currently caps out at 100 tracks)
+                    albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.owner.name}`;
+                    bracket = new Bracket(selectedAlbum.tracks.items.map(i => i.track));
+
+                    break;
+                }
+                default:
+                    alert(`Unknown object type ${selectedAlbum.type}`)
+            }
 
             let round = bracket.nextRound([]);
             let winners = Array(round.matchups.length).fill(null);
@@ -229,6 +301,8 @@ function toggleStep(step) {
                 const
                     titleLeft = document.querySelector("#step2-item-left-title"),
                     titleRight = document.querySelector("#step2-item-right-title"),
+                    artistsLeft = document.querySelector("#step2-item-left-artists"),
+                    artistsRight = document.querySelector("#step2-item-right-artists"),
                     matchupCount = document.querySelector("#step2-current-matchup"),
                     totalMatchups = document.querySelector("#step2-total-matchups"),
                     roundCount = document.querySelector("#step2-current-round"),
@@ -240,7 +314,9 @@ function toggleStep(step) {
                 totalRounds.innerText = `${bracket.totalRounds}`;
 
                 titleLeft.innerText = matchup.left.name;
+                artistsLeft.innerText = matchup.left.artists.map(a => a.name).join(", ");
                 titleRight.innerText = matchup.right.name;
+                artistsRight.innerText = matchup.right.artists.map(a => a.name).join(", ");
 
                 for (let i = 0; i < round.matchups.length; ++i) {
                     const matchup = round.matchups[i];
@@ -348,9 +424,7 @@ function toggleStep(step) {
             const extUrl = winner.external_urls["spotify"];
             const search = "spotify.com/"
             const index = extUrl.indexOf(search) + search.length;
-            console.log(`a: '${extUrl.substring(0, index)}', b: '${extUrl.substring(index)}'`)
 
-            const split = winner.external_urls["spotify"].split("spotify.com/")
             iframe.src = `${extUrl.substring(0, index)}embed/${extUrl.substring(index)}`;
 
             break;
@@ -388,3 +462,9 @@ document.querySelector("#step2-next-round").addEventListener("click", () => {
 document.querySelector("#step2-next-matchup").addEventListener("click", () => {
     if (matchupCallback) matchupCallback();
 });
+
+document.querySelectorAll("#step1-objtype-container input[type=radio]").forEach(e => {
+    e.addEventListener("change", () => {
+        if (objtypeCallback) objtypeCallback();
+    })
+})
