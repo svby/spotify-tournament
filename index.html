@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Spotify brackets</title>
+
+    <link rel="stylesheet" href="style/main.css">
+
+    <script type="module" src="script/bracket.js"></script>
+    <script type="module" src="script/main.js"></script>
+</head>
+<body>
+<div id="container">
+    <div id="modal-container" class="visible">
+        <div id="login-modal" class="modal">
+            <p>Sign in to Spotify:</p>
+            <button id="login-button">Sign in</button>
+        </div>
+    </div>
+    <div id="content-container">
+        <h1>Tournament</h1>
+
+        <h2>Step 1: select an album</h2>
+        <label for="albumid">Enter an album ID here (the part after the Spotify URL)</label><br>
+        <input id="albumid" type="text">
+
+        <h2>Step 2: listen and rank</h2>
+        <p>Waiting for input...</p>
+        <div id="matchups"></div>
+    </div>
+    <footer>
+        <p>© 2020 <a href="https://stuhlmeier.github.io/">stuhlmeier</a></p>
+        <p>Available under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>.
+        </p>
+    </footer>
+</div>
+</body>
+</html>
