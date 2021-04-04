@@ -280,7 +280,7 @@ function toggleStep(step) {
                 }
                 case "playlist": {
                     // TODO fetch paginated (currently caps out at 100 tracks)
-                    albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.owner.name}`;
+                    albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.owner.display_name}`;
                     bracket = new Bracket(selectedAlbum.tracks.items.map(i => i.track));
 
                     break;
@@ -299,8 +299,12 @@ function toggleStep(step) {
             const updateMatchupDisplay = () => {
                 const matchup = round.matchups[currentMatchup];
                 const
+                    itemLeft = document.querySelector("#step2-item-left"),
+                    itemRight = document.querySelector("#step2-item-right"),
                     titleLeft = document.querySelector("#step2-item-left-title"),
                     titleRight = document.querySelector("#step2-item-right-title"),
+                    imageLeft = document.querySelector("#step2-item-left .bg"),
+                    imageRight = document.querySelector("#step2-item-right .bg"),
                     artistsLeft = document.querySelector("#step2-item-left-artists"),
                     artistsRight = document.querySelector("#step2-item-right-artists"),
                     matchupCount = document.querySelector("#step2-current-matchup"),
@@ -313,10 +317,29 @@ function toggleStep(step) {
                 roundCount.innerText = `${currentRound + 1}`;
                 totalRounds.innerText = `${bracket.totalRounds}`;
 
+                const setImage = (imageDiv, track) => {
+                    const image = selectedAlbum.type === "album" ? selectedAlbum.images[0].url : track.album.images[0].url;
+                    imageDiv.innerHTML = "";
+                    const img = document.createElement("img");
+                    img.src = image;
+                    imageDiv.appendChild(img);
+                };
+
+                setImage(imageLeft, matchup.left);
+                setImage(imageRight, matchup.right);
+
                 titleLeft.innerText = matchup.left.name;
                 artistsLeft.innerText = matchup.left.artists.map(a => a.name).join(", ");
                 titleRight.innerText = matchup.right.name;
                 artistsRight.innerText = matchup.right.artists.map(a => a.name).join(", ");
+
+                if (winners[currentMatchup] !== null) {
+                    (winners[currentMatchup] ? itemLeft : itemRight).classList.add("selected");
+                    (winners[currentMatchup] ? itemRight : itemLeft).classList.remove("selected");
+                } else {
+                    itemLeft.classList.remove("selected");
+                    itemRight.classList.remove("selected");
+                }
 
                 for (let i = 0; i < round.matchups.length; ++i) {
                     const matchup = round.matchups[i];
@@ -351,6 +374,7 @@ function toggleStep(step) {
                     if (matchup.left.hasOwnProperty("bye") || matchup.right.hasOwnProperty("bye")) {
                         e.classList.add("bye");
                         e.innerText = "(bye matchup)";
+                        e.title = "This track will enter in round 2";
                     } else {
                         if (round.matchups[i])
                             e.addEventListener("click", () => {
@@ -439,11 +463,17 @@ document.querySelector("#next").addEventListener("click", () => {
     if (nextCallback) nextCallback();
 });
 
-document.querySelector("#step2-selector-left").addEventListener("click", () => {
+const leftItem = document.querySelector("#step2-item-left");
+const leftInfo = leftItem.querySelector(".info");
+leftItem.addEventListener("click", event => {
+    if (leftInfo.contains(event.target)) return;
     if (selectCallback) selectCallback(true);
 });
 
-document.querySelector("#step2-selector-right").addEventListener("click", () => {
+const rightItem = document.querySelector("#step2-item-right");
+const rightInfo = rightItem.querySelector(".info");
+rightItem.addEventListener("click", event => {
+    if (rightInfo.contains(event.target)) return;
     if (selectCallback) selectCallback(false);
 });
 
@@ -467,4 +497,4 @@ document.querySelectorAll("#step1-objtype-container input[type=radio]").forEach(
     e.addEventListener("change", () => {
         if (objtypeCallback) objtypeCallback();
     })
-})
+});

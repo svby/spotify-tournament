@@ -55,17 +55,16 @@
 <div id="container">
     <div id="content-container">
         <h1>Spotify bracket</h1>
+        <p>Signed in as <span id="username">unknown</span></p>
         <hr>
 
         <nav id="breadcrumb">
             <ol>
                 <li class="selected">Select an album</li>
                 <li class="disabled">Listen and rank</li>
-                <li class="disabled">Finished</li>
+                <li class="disabled">Results</li>
             </ol>
         </nav>
-
-        <p>Signed in as <span id="username">unknown</span></p>
 
         <div id="step-container">
             <div id="loading-container">
@@ -76,11 +75,11 @@
                 <h2>Step 1: select an album or a playlist</h2>
 
                 <div id="step1-objtype-container">
-                    <input type="radio" id="objtype1" name="objectType" value="album" checked>
-                    <label for="objtype1">Album</label>
-
-                    <input type="radio" id="objtype2" name="objectType" value="playlist">
+                    <input type="radio" id="objtype1" name="objectType" value="playlist" checked>
                     <label for="objtype2">Playlist</label>
+
+                    <input type="radio" id="objtype2" name="objectType" value="album">
+                    <label for="objtype1">Album</label>
 
                     <!--                    <input type="radio" id="objtype3" name="objectType" value="artist">-->
                     <!--                    <label for="objtype3">Artist</label>-->
@@ -124,26 +123,26 @@
                                     id="step2-total-matchups"></span>
                             </h3>
                             <hr>
-                            <div id="step2-selector">
-                                <div id="step2-selector-left">
-                                    Select left
-                                </div>
-                                <div id="step2-selector-right">
-                                    Select right
-                                </div>
-                            </div>
-                            <hr>
-                            <div id="step2-matchup-items">
-                                <div id="step2-item-left">
-                                    <p id="step2-item-left-title"></p>
-                                    <p id="step2-item-left-artists"></p>
-                                    <a class="play">Play on Spotify (requires active device)</a>
-                                </div>
-                                <div class="vs">vs.</div>
-                                <div id="step2-item-right">
-                                    <p id="step2-item-right-title"></p>
-                                    <p id="step2-item-right-artists"></p>
-                                    <a class="play">Play on Spotify (requires active device)</a>
+
+                            <div id="step2-matchup-current-contents">
+                                <div id="step2-matchup-items">
+                                    <div id="step2-item-left" class="fade">
+                                        <div class="bg"></div>
+                                        <div class="info">
+                                            <p id="step2-item-left-title"></p>
+                                            <p id="step2-item-left-artists"></p>
+                                            <a class="play">Play on Spotify (requires active device)</a>
+                                        </div>
+                                    </div>
+                                    <div class="vs">vs.</div>
+                                    <div id="step2-item-right" class="fade">
+                                        <div class="bg"></div>
+                                        <div class="info">
+                                            <p id="step2-item-right-title"></p>
+                                            <p id="step2-item-right-artists"></p>
+                                            <a class="play">Play on Spotify (requires active device)</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div id="step2-matchup-footer">
