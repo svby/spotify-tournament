@@ -176,8 +176,10 @@ button {
 #step2-matchup-items .vs {
     text-align: center;
     font-variant: all-small-caps;
+    font-size: 130%;
     font-weight: bold;
     color: darkred;
+    align-self: center;
 }
 
 #step2-item-left, #step2-item-right {
