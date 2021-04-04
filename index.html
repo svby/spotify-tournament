@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" href="style/tournament.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js"></script>
+    <script type="module" src="script/generate.js"></script>
     <script type="module" src="script/bracket.js"></script>
     <script type="module" src="script/step1.js"></script>
     <script type="module" src="script/main.js"></script>
@@ -76,10 +78,10 @@
 
                 <div id="step1-objtype-container">
                     <input type="radio" id="objtype1" name="objectType" value="playlist" checked>
-                    <label for="objtype2">Playlist</label>
+                    <label for="objtype1">Playlist</label>
 
                     <input type="radio" id="objtype2" name="objectType" value="album">
-                    <label for="objtype1">Album</label>
+                    <label for="objtype2">Album</label>
 
                     <!--                    <input type="radio" id="objtype3" name="objectType" value="artist">-->
                     <!--                    <label for="objtype3">Artist</label>-->
@@ -159,6 +161,9 @@
                 <h3>Your favorite track:</h3>
                 <iframe width="300" height="380" frameborder="0" allowtransparency="true"
                         allow="encrypted-media"></iframe>
+
+                <h3>Your bracket:</h3>
+                <div id="step3-container"></div>
             </div>
         </div>
         <hr>

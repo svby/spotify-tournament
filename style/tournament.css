@@ -294,3 +294,9 @@ button {
     filter: blur(0) grayscale(0) contrast(1);
     transform: scale(1.1);
 }
+
+/* Step 3 */
+#step3-container svg {
+    width: 100%;
+    height: auto;
+}

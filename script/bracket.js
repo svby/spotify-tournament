@@ -13,13 +13,28 @@ export class Bracket {
         const songsShuffled = [...songs];
         shuffleArray(songsShuffled);
         this.songsShuffled = songsShuffled;
+        this.winner = null;
 
         // TODO replace this. This is really ugly
         let levels = 32 - Math.clz32(songs.length);
         // When the amount of songs is a power of 2, don't round up:
         if ((songs.length << 1) === (1 << levels)) --levels;
 
+        const shuffledWithByes = [];
+
+        // Add paired matches
+        for (let i = 0; i < 2 * songsShuffled.length - (1 << levels); ++i) shuffledWithByes.push(songsShuffled[i]);
+
+        // Add bye matches
+        for (let i = 2 * songsShuffled.length - (1 << levels); i < songsShuffled.length; ++i) {
+            shuffledWithByes.push(songsShuffled[i]);
+            shuffledWithByes.push(bye);
+        }
+
+        this.songsShuffledWithByes = shuffledWithByes;
+
         this.currentRound = -1;
+        this.roundResults = [];
         this.generatedMatchups = [];
         this.maxRounds = levels;
 
@@ -54,19 +69,35 @@ export class Bracket {
         let result;
         if (this.currentRound === -1) {
             result = this.generateMatchup(this.songsShuffled, 0);
+            this.roundResults.push([]);
         } else {
             const lastMatchup = this.generatedMatchups[this.generatedMatchups.length - 1];
+            console.log(lastMatchup);
+
+            // Fill/trim empty space
+            winners = winners.slice(0, Math.min(winners.length, lastMatchup.length));
+            const toAdd = lastMatchup.length - winners.length;
+            for (let i = 0; i < toAdd; ++i) winners.push(null);
+
             const winnerSongs = winners.map((w, i) => {
                 const leftBye = lastMatchup[i].left.hasOwnProperty("bye");
                 const rightBye = lastMatchup[i].right.hasOwnProperty("bye");
 
                 // If one participant is a bye placeholder, the other one automatically wins
-                if (leftBye !== rightBye) return leftBye ? lastMatchup[i].right : lastMatchup[i].left;
-                else if (leftBye) return bye;
+                if (leftBye !== rightBye) {
+                    if (leftBye) {
+                        winners[i] = false;
+                        return lastMatchup[i].right;
+                    } else {
+                        winners[i] = true;
+                        return lastMatchup[i].left;
+                    }
+                } else if (leftBye) return bye;
                 else return w ? lastMatchup[i].left : lastMatchup[i].right;
             });
 
             if (winnerSongs.length === 1) {
+                this.winner = winnerSongs[0];
                 return {
                     winner: winnerSongs[0],
                     matchups: [],
@@ -74,6 +105,7 @@ export class Bracket {
             }
 
             result = this.generateMatchup(winnerSongs, this.currentRound + 1);
+            this.roundResults.push(winners);
         }
 
         this.generatedMatchups.push(result);

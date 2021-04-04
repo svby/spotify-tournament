@@ -1,5 +1,6 @@
 import {Bracket} from "./bracket.js";
 import {extractDisplayFields} from "./step1.js";
+import {createBracketSvg} from "./generate.js";
 
 let token;
 let tokenExpiry = 0;
@@ -135,6 +136,7 @@ let playCallback;
 let matchupCallback;
 let objtypeCallback;
 
+let bracket;
 let winner;
 let objtype;
 
@@ -286,7 +288,6 @@ function toggleStep(step) {
             // Step 2
             const albumTitle = document.querySelector("#step2-album-title");
 
-            let bracket;
             switch (selectedAlbum.type) {
                 case "album": {
                     albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.artists.map(a => a.name).join(", ")}`;
@@ -466,6 +467,8 @@ function toggleStep(step) {
             const index = extUrl.indexOf(search) + search.length;
 
             iframe.src = `${extUrl.substring(0, index)}embed/${extUrl.substring(index)}`;
+
+            createBracketSvg(bracket).addTo("#step3-container").size("100%");
 
             break;
         }
