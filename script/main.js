@@ -138,7 +138,10 @@ function toggleStep(step) {
             // Step 1
             const albumidInput = document.querySelector("#albumid");
             const fetchButton = document.querySelector("#fetch");
-            const updateAlbumid = (id) => {
+            const updateAlbumid = (idInput) => {
+                const match = idInput.match(/spotify.com\/album\/(.+?)\?/);
+                const id = match ? match[1] : idInput;
+
                 fetchButton.disabled = true;
                 fetch(`https://api.spotify.com/v1/albums/${id}`, {
                     method: "GET",
