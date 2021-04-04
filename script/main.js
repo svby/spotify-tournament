@@ -26,37 +26,65 @@ export function fetchNewToken() {
 const loginButton = document.getElementById("login-button");
 loginButton.addEventListener("click", () => fetchNewToken());
 
-// Fetch login token if this is a callback
-const pageAnchor = window.location.hash.slice(1);
-if (pageAnchor) {
-    console.log("Access token received");
-    const newToken = {};
-    for (const [k, v] of pageAnchor.split("&").map(kv => kv.split("="))) {
-        newToken[k] = v;
-    }
-    token = Object.freeze(newToken);
-    tokenExpiry = getTime() + token.expires_in - 10; // Subtract a few seconds in case of inaccuracies
+function tryLoadToken() {
+    document.getElementById("modal-container").classList.add("visible");
 
-    // Store token
-    localStorage.setItem("token", JSON.stringify(token));
+    // Fetch login token if this is a callback
+    const pageAnchor = window.location.hash.slice(1);
+    if (pageAnchor) {
+        console.log("Access token received");
+        const newToken = {};
+        for (const [k, v] of pageAnchor.split("&").map(kv => kv.split("="))) {
+            newToken[k] = v;
+        }
+        token = Object.freeze(newToken);
+        tokenExpiry = getTime() + token.expires_in - 10; // Subtract a few seconds in case of inaccuracies
 
-    // Remove hash
-    history.replaceState({}, document.title, ".");
-} else {
-    // Fetch from local storage if present
-    const saved = localStorage.getItem("token");
-    if (saved) {
-        const savedToken = JSON.parse(saved);
-        if (savedToken.expires_in < getTime()) {
-            token = savedToken;
+        // Store token
+        localStorage.setItem("token", JSON.stringify(token));
+
+        // Remove hash
+        history.replaceState({}, document.title, ".");
+    } else {
+        // Fetch from local storage if present
+        const saved = localStorage.getItem("token");
+        if (saved) {
+            const savedToken = JSON.parse(saved);
+            if (savedToken.expires_in < getTime()) {
+                token = savedToken;
+            }
         }
     }
+
+    if (token) {
+        const username = document.querySelector("#username");
+        fetch(`https://api.spotify.com/v1/me`, {
+            method: "GET",
+            headers: new Headers({
+                "Authorization": `${token.token_type} ${token.access_token}`
+            })
+        })
+            .then(data => data.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error.message}`);
+                    if (data.error.message.includes("token expire")) {
+                        localStorage.removeItem("token");
+                        token = null;
+                        tryLoadToken();
+                    } else {
+                        alert(`Couldn't fetch user information: ${e}`);
+                    }
+                }
+                username.innerText = data.display_name;
+            });
+
+        // Hide login modal
+        document.getElementById("modal-container").classList.remove("visible");
+    }
 }
 
-if (token) {
-    // Hide login modal
-    document.getElementById("modal-container").classList.remove("visible");
-}
+tryLoadToken();
 
 export function play(song) {
     fetch(`https://api.spotify.com/v1/me/player/play`, {

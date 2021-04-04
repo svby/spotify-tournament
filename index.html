@@ -13,12 +13,6 @@
 </head>
 <body>
 <div id="container">
-    <div id="modal-container" class="visible">
-        <div id="login-modal" class="modal">
-            <p>Sign in to Spotify:</p>
-            <button id="login-button">Sign in</button>
-        </div>
-    </div>
     <div id="content-container">
         <h1>Spotify bracket</h1>
         <hr>
@@ -30,6 +24,9 @@
                 <li class="disabled">Finished</li>
             </ol>
         </nav>
+
+        <p>Signed in as <span id="username">unknown</span></p>
+
         <div id="step-container">
             <div id="loading-container">
                 <p>Loading...</p>
@@ -99,7 +96,8 @@
                             </ol>
                         </div>
                         <div id="step2-matchup-current">
-                            <h3>Matchup <span id="step2-current-matchup"></span> of <span id="step2-total-matchups">
+                            <h3>Matchup <span id="step2-current-matchup"></span> of <span
+                                    id="step2-total-matchups"></span>
                             </h3>
                             <hr>
                             <div id="step2-selector">
@@ -144,6 +142,12 @@
             <p>Available under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>.
             </p>
         </footer>
+    </div>
+    <div id="modal-container" class="visible">
+        <div id="login-modal" class="modal">
+            <p>Sign in to Spotify:</p>
+            <button id="login-button">Sign in</button>
+        </div>
     </div>
 </div>
 </body>

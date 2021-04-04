@@ -30,6 +30,10 @@
     font-weight: bold;
 }
 
+#username {
+    font-weight: bold;
+}
+
 #step-container .hidden {
     display: none;
 }
