@@ -62,3 +62,24 @@ footer p:last-of-type {
 #modal-container.visible + #content-container {
     filter: blur(8px);
 }
+
+input[type=text] {
+    padding: 10px;
+    font-size: inherit;
+    margin: 0;
+    border: 1px solid gainsboro;
+    border-radius: 3px;
+}
+
+#albumid {
+    margin-top: 5px;
+    width: 400px;
+}
+
+#matchups li {
+    margin: 10px 0;
+}
+
+#matchups li span {
+    cursor: pointer;
+}

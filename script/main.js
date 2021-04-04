@@ -113,8 +113,8 @@ function addRound(i, round) {
         head.innerHTML = `Matchups, round ${i}:`;
         roundContainer.appendChild(head);
 
-        const ul = document.createElement("ul");
-        roundContainer.appendChild(ul);
+        const ol = document.createElement("ol");
+        roundContainer.appendChild(ol);
 
         for (let i = 0; i < matchups.length; ++i) {
             const matchupIndex = i;
@@ -122,6 +122,7 @@ function addRound(i, round) {
 
             const li = document.createElement("li");
 
+            const part1 = document.createElement("div");
             const leftBye = matchup.left.hasOwnProperty("bye");
             const rightBye = matchup.right.hasOwnProperty("bye");
 
@@ -134,9 +135,24 @@ function addRound(i, round) {
             const rightSpan = document.createElement("span");
             rightSpan.innerText = rightString;
 
-            li.appendChild(leftSpan);
-            li.appendChild(document.createTextNode(" vs "));
-            li.appendChild(rightSpan);
+            part1.appendChild(leftSpan);
+            part1.appendChild(document.createTextNode(" vs "));
+            part1.appendChild(rightSpan);
+
+            const part2 = document.createElement("div");
+            for (const track of [matchup.left, matchup.right]) {
+                (() => {
+                    const playLink = document.createElement("a");
+                    playLink.innerText = `Play ${track.name} on Spotify`
+                    playLink.style.display = "block";
+                    playLink.addEventListener("click", () => play(track));
+
+                    part2.appendChild(playLink);
+                })(track);
+            }
+
+            li.appendChild(part1);
+            li.appendChild(part2);
 
             if (!leftBye && !rightBye) {
                 leftSpan.addEventListener("click", () => {
@@ -156,7 +172,7 @@ function addRound(i, round) {
                 leftSpan.style.color = rightSpan.style.color = "gray";
             }
 
-            ul.appendChild(li);
+            ol.appendChild(li);
         }
 
         const next = document.createElement("button");
