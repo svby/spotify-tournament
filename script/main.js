@@ -75,6 +75,7 @@ function tryLoadToken() {
                     } else {
                         alert(`Couldn't fetch user information: ${e}`);
                     }
+                    return;
                 }
                 username.innerText = data.display_name;
             });
@@ -153,8 +154,8 @@ function toggleStep(step) {
                     .then(data => {
                         if (data.error) {
                             alert(`Error: ${data.error.message}`);
+                            return;
                         }
-                        console.log(data);
 
                         const
                             albumInfoContainer = document.querySelector("#album-info-container"),
@@ -186,6 +187,9 @@ function toggleStep(step) {
                         albumInfoContainer.classList.remove("hidden");
 
                         selectedAlbum = data;
+                    })
+                    .catch(e => {
+                        alert(`Couldn't fetch album: ${e}`);
                     })
                     .finally(() => fetchButton.disabled = false);
             };
