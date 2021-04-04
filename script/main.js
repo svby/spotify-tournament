@@ -103,6 +103,20 @@ export function play(song) {
     });
 }
 
+async function fetchPaginated(toMerge, next) {
+    if (!next) return toMerge;
+    const response = await fetch(next, {
+        method: "GET",
+        headers: new Headers({
+            "Authorization": `${token.token_type} ${token.access_token}`
+        })
+    });
+    const json = await response.json();
+    toMerge.items = toMerge.items.concat(json.items);
+    if (json.next) return await fetchPaginated(toMerge, json.next);
+    else return toMerge;
+}
+
 const steps = [
     document.querySelector("#step1"),
     document.querySelector("#step2"),
@@ -181,6 +195,7 @@ function toggleStep(step) {
                             })
                         })
                             .then(response => response.json())
+                            .then(data => fetchPaginated(data.tracks, data.tracks.next).then(() => data))
                             .catch(e => {
                                 alert(`Couldn't fetch album: ${e}`);
                             })
@@ -198,6 +213,7 @@ function toggleStep(step) {
                             })
                         })
                             .then(response => response.json())
+                            .then(data => fetchPaginated(data.tracks, data.tracks.next).then(() => data))
                             .catch(e => {
                                 alert(`Couldn't fetch playlist: ${e}`);
                             })
