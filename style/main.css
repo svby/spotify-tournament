@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-html {
+html, body {
     font-family: 'Source Sans Pro', sans-serif;
+    font-size: 11pt;
+    margin: 0;
 }
 
 #container {
-    max-width: 800px;
-    margin: 60px auto;
-
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -61,6 +61,11 @@ footer p:last-of-type {
 
 #modal-container.visible + #content-container {
     filter: blur(8px);
+}
+
+#content-container {
+    max-width: 900px;
+    margin: 60px auto;
 }
 
 input[type=text] {

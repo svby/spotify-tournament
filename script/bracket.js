@@ -83,4 +83,8 @@ export class Bracket {
             matchups: result,
         };
     }
+
+    get totalRounds() {
+        return this.maxRounds;
+    }
 }

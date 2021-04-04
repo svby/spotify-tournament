@@ -1,0 +1,209 @@
+#breadcrumb ol {
+    margin: 0;
+    padding: 0;
+    counter-reset: breadcrumb;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+
+    border: 1px solid lightgray;
+    border-radius: 3px;
+}
+
+#breadcrumb li {
+    margin: 0;
+    padding: 10px;
+    counter-increment: breadcrumb;
+    cursor: pointer;
+}
+
+#breadcrumb li.selected {
+    background-color: #e9e9e9;
+}
+
+#breadcrumb li:not(.selected) {
+    color: gray;
+}
+
+#breadcrumb li::before {
+    content: counter(breadcrumb) ": ";
+    font-weight: bold;
+}
+
+#step-container .hidden {
+    display: none;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+#next {
+    background-color: dodgerblue;
+    margin-top: 20px;
+    color: white;
+}
+
+/* Step 1 */
+#album-info-container.hidden {
+    display: none;
+}
+
+#album-info-container table {
+    border-spacing: 20px 0;
+}
+
+#album-info-container table th {
+    text-align: right;
+}
+
+#album-uri-data {
+    font-family: monospace;
+}
+
+#album-info-container table {
+    flex: none;
+    align-self: start;
+}
+
+#album-image {
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+#album-image img {
+    max-width: 100%;
+}
+
+#album-info-flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Step 2 */
+#step2-matchup-view {
+    border: 1px solid lightgray;
+    border-radius: 3px;
+
+    display: grid;
+    grid-template-columns: 230px auto;
+    margin-top: 10px;
+}
+
+#step2-matchup-view h3 {
+    margin: 0;
+    font-weight: normal;
+}
+
+#step2-matchup-view hr {
+    margin: 10px 0;
+}
+
+#step2-matchup-status {
+    padding: 10px;
+    border-right: 1px solid lightgray;
+    word-wrap: anywhere;
+}
+
+#step2-matchup-status ol {
+    margin: 0;
+    padding: 0;
+    counter-reset: matchup;
+    list-style: none;
+}
+
+#step2-matchup-status li {
+    counter-increment: matchup;
+    cursor: pointer;
+    margin: 8px 0;
+}
+
+#step2-matchup-status li.bye {
+    cursor: not-allowed;
+    color: gray;
+}
+
+#step2-matchup-status li::before {
+    content: "Match " counter(matchup) ": ";
+}
+
+#step2-matchup-current {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+#step2-matchup-current h3 {
+    text-align: center;
+}
+
+#step2-matchup-items {
+    display: grid;
+    grid-template-columns: auto 50px auto;
+}
+
+#step2-matchup-items .vs {
+    text-align: center;
+    font-variant: all-small-caps;
+    font-weight: bold;
+    color: darkred;
+}
+
+#step2-item-left, #step2-item-right {
+    word-wrap: anywhere;
+    padding: 0 10px;
+}
+
+#step2-item-left {
+    text-align: left;
+}
+
+#step2-item-right {
+    text-align: right;
+}
+
+#step2-matchup-items .play {
+    color: blue;
+    cursor: pointer;
+}
+
+#step2-matchup-current p {
+    margin: 0 0 20px;
+}
+
+#step2-selector {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+#step2-selector-left, #step2-selector-right {
+    font-variant: all-small-caps;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+    margin: -10px 0;
+    font-size: larger;
+}
+
+#step2-selector-left {
+    text-align: left;
+}
+
+#step2-selector-right {
+    text-align: right;
+}
+
+#step2-matchup-footer {
+    padding: 10px;
+    margin-top: auto;
+}
+
+#step2-next-round {
+    background-color: dodgerblue;
+    color: white;
+}

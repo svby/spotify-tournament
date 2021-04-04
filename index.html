@@ -6,6 +6,7 @@
     <title>Spotify brackets</title>
 
     <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/tournament.css">
 
     <script type="module" src="script/bracket.js"></script>
     <script type="module" src="script/main.js"></script>
@@ -19,24 +20,131 @@
         </div>
     </div>
     <div id="content-container">
-        <h1>Tournament</h1>
+        <h1>Spotify bracket</h1>
         <hr>
 
-        <h2>Step 1: select an album</h2>
-        <label for="albumid">Enter an album ID here (the part after the Spotify URL)</label><br>
-        <input id="albumid" type="text">
+        <nav id="breadcrumb">
+            <ol>
+                <li class="selected">Select an album</li>
+                <li class="disabled">Listen and rank</li>
+                <li class="disabled">Finished</li>
+            </ol>
+        </nav>
+        <div id="step-container">
+            <div id="loading-container">
+                <p>Loading...</p>
+            </div>
 
-        <h2>Step 2: listen and rank</h2>
-        <div id="matchups">
-            <p>Waiting for input...</p>
+            <div id="step1" class="hidden">
+                <h2>Step 1: select an album</h2>
+                <label for="albumid">Enter an album ID here (the part after the Spotify URL)</label><br>
+                <div>
+                    <input id="albumid" type="text">
+                    <button id="fetch">Fetch</button>
+                </div>
+                <div id="album-info-container" class="hidden">
+                    <h3>Album information</h3>
+                    <div id="album-info-flex">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <th scope="row">Title</th>
+                                <td id="album-title-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Type</th>
+                                <td id="album-type-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Artists</th>
+                                <td id="album-artists-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Label</th>
+                                <td id="album-label-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Track count</th>
+                                <td id="album-tracks-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Release date</th>
+                                <td id="album-date-data"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">ID (Spotify URI)</th>
+                                <td id="album-uri-data"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div id="album-image"></div>
+                    </div>
+                </div>
+                <button id="next">Next</button>
+            </div>
+
+            <div id="step2" class="hidden">
+                <h2>Step 2: listen and rank</h2>
+                <p>Selected album: <span id="step2-album-title"></span></p>
+                <div id="step2-matchup-container">
+                    <div><b>Round <span id="step2-current-round"></span> of <span id="step2-total-rounds"></span></b>
+                    </div>
+
+                    <div id="step2-matchup-view">
+                        <div id="step2-matchup-status">
+                            <h3>Winners</h3>
+                            <hr>
+                            <ol>
+                                <li>A</li>
+                            </ol>
+                        </div>
+                        <div id="step2-matchup-current">
+                            <h3>Matchup <span id="step2-current-matchup"></span> of <span id="step2-total-matchups">
+                            </h3>
+                            <hr>
+                            <div id="step2-selector">
+                                <div id="step2-selector-left">
+                                    Select left
+                                </div>
+                                <div id="step2-selector-right">
+                                    Select right
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="step2-matchup-items">
+                                <div id="step2-item-left">
+                                    <p id="step2-item-left-title"></p>
+                                    <a class="play">Play on Spotify (requires active device)</a>
+                                </div>
+                                <div class="vs">vs.</div>
+                                <div id="step2-item-right">
+                                    <p id="step2-item-right-title"></p>
+                                    <a class="play">Play on Spotify (requires active device)</a>
+                                </div>
+                            </div>
+                            <div id="step2-matchup-footer">
+                                <button id="step2-next-round">Next round</button>
+                                <button id="step2-next-matchup">Next matchup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step3" class="hidden">
+                <h2>Step 3: results</h2>
+                <h3>Your favorite track:</h3>
+                <iframe width="300" height="380" frameborder="0" allowtransparency="true"
+                        allow="encrypted-media"></iframe>
+            </div>
         </div>
+        <hr>
+        <footer>
+            <p>© 2021 <a href="https://stuhlmeier.github.io/">stuhlmeier</a></p>
+            <p>Available under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>.
+            </p>
+        </footer>
     </div>
-    <hr>
-    <footer>
-        <p>© 2020 <a href="https://stuhlmeier.github.io/">stuhlmeier</a></p>
-        <p>Available under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>.
-        </p>
-    </footer>
 </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import {Bracket} from "./bracket.js"
+import {Bracket} from "./bracket.js";
 
 let token;
 let tokenExpiry = 0;
@@ -58,145 +58,6 @@ if (token) {
     document.getElementById("modal-container").classList.remove("visible");
 }
 
-// Tournament listeners
-let bracket;
-
-const albumInput = document.getElementById("albumid");
-if (albumInput.value) updateAlbum(albumInput.value);
-
-function updateAlbum(albumId) {
-    fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
-        method: "GET",
-        headers: new Headers({
-            "Authorization": `${token.token_type} ${token.access_token}`
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert("That album ID does not exist");
-            }
-            const songs = data.tracks.items;
-            bracket = new Bracket(songs);
-
-            document.querySelector("#matchups").innerHTML = "";
-            addRound(1, bracket.nextRound());
-        });
-}
-
-albumInput.addEventListener("change", e => updateAlbum(e.target.value));
-
-function addRound(i, round) {
-    const matchupContainer = document.querySelector("#matchups");
-
-    const roundContainer = document.createElement("div");
-    roundContainer.classList.add("round");
-    matchupContainer.appendChild(roundContainer);
-
-    if (round.winner) {
-        const head = document.createElement("h2");
-        head.innerHTML = "Winner";
-        roundContainer.appendChild(head);
-
-        const p = document.createElement("p");
-        p.innerHTML = round.winner.name;
-        roundContainer.appendChild(p);
-
-        console.log("Winner:");
-        console.log(round.winner);
-        play(round.winner);
-    } else {
-        const {matchups} = round;
-        let winners = Array(matchups.length).fill(null);
-
-        const head = document.createElement("p");
-        head.innerHTML = `Matchups, round ${i}:`;
-        roundContainer.appendChild(head);
-
-        const ol = document.createElement("ol");
-        roundContainer.appendChild(ol);
-
-        for (let i = 0; i < matchups.length; ++i) {
-            const matchupIndex = i;
-            const matchup = matchups[matchupIndex];
-
-            const li = document.createElement("li");
-
-            const part1 = document.createElement("div");
-            const leftBye = matchup.left.hasOwnProperty("bye");
-            const rightBye = matchup.right.hasOwnProperty("bye");
-
-            const leftString = leftBye ? "[BYE]" : matchup.left.name;
-            const rightString = rightBye ? "[BYE]" : matchup.right.name;
-
-            const leftSpan = document.createElement("span");
-            leftSpan.innerText = leftString;
-
-            const rightSpan = document.createElement("span");
-            rightSpan.innerText = rightString;
-
-            part1.appendChild(leftSpan);
-            part1.appendChild(document.createTextNode(" vs "));
-            part1.appendChild(rightSpan);
-
-            const part2 = document.createElement("div");
-            for (const track of [matchup.left, matchup.right]) {
-                (() => {
-                    const playLink = document.createElement("a");
-                    playLink.innerText = `Play ${track.name} on Spotify`
-                    playLink.style.display = "block";
-                    playLink.addEventListener("click", () => play(track));
-
-                    part2.appendChild(playLink);
-                })(track);
-            }
-
-            li.appendChild(part1);
-            li.appendChild(part2);
-
-            if (!leftBye && !rightBye) {
-                leftSpan.addEventListener("click", () => {
-                    winners[matchupIndex] = true;
-                    leftSpan.style.color = "green";
-                    rightSpan.style.color = "red";
-                });
-
-                rightSpan.addEventListener("click", () => {
-                    winners[matchupIndex] = false;
-                    leftSpan.style.color = "red";
-                    rightSpan.style.color = "green";
-                });
-
-                leftSpan.style.color = rightSpan.style.color = "blue";
-            } else {
-                leftSpan.style.color = rightSpan.style.color = "gray";
-            }
-
-            ol.appendChild(li);
-        }
-
-        const next = document.createElement("button");
-        next.innerHTML = "Next round";
-
-        matchupContainer.appendChild(next);
-
-        next.addEventListener("click", () => {
-            for (let i = 0; i < matchups.length; ++i) {
-                const matchup = matchups[i];
-
-                if (matchup.left.hasOwnProperty("bye") || matchup.right.hasOwnProperty("bye")) continue;
-
-                if (winners[i] === null) {
-                    alert("You haven't selected winners for all matchups yet");
-                    return;
-                }
-            }
-            matchupContainer.removeChild(next);
-            addRound(i + 1, bracket.nextRound(winners));
-        });
-    }
-}
-
 export function play(song) {
     fetch(`https://api.spotify.com/v1/me/player/play`, {
         method: "PUT",
@@ -211,3 +72,281 @@ export function play(song) {
         alert(`Couldn't play song: ${e}`);
     });
 }
+
+const steps = [
+    document.querySelector("#step1"),
+    document.querySelector("#step2"),
+    document.querySelector("#step3"),
+];
+
+const nav = document.querySelector("#breadcrumb ol");
+
+let selectedAlbum;
+let currentStep;
+
+let nextCallback;
+let selectCallback;
+let roundCallback;
+let playCallback;
+let matchupCallback;
+
+let winner;
+
+function toggleStep(step) {
+    currentStep = step;
+
+    steps.forEach(s => s.classList.add("hidden"));
+    steps[step].classList.remove("hidden");
+
+    // TODO for later: back/forward navigation
+    for (const li of nav.querySelectorAll("li")) {
+        li.classList.remove("selected");
+    }
+    const current = nav.querySelector(`li:nth-child(${step + 1})`);
+    current.classList.add("selected");
+
+    switch (step) {
+        case 0: {
+            // Step 1
+            const albumidInput = document.querySelector("#albumid");
+            const fetchButton = document.querySelector("#fetch");
+            const updateAlbumid = (id) => {
+                fetchButton.disabled = true;
+                fetch(`https://api.spotify.com/v1/albums/${id}`, {
+                    method: "GET",
+                    headers: new Headers({
+                        "Authorization": `${token.token_type} ${token.access_token}`
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(`Error: ${data.error.message}`);
+                        }
+                        console.log(data);
+
+                        const
+                            albumInfoContainer = document.querySelector("#album-info-container"),
+                            albumTitleData = document.querySelector("#album-title-data"),
+                            albumTypeData = document.querySelector("#album-type-data"),
+                            albumArtistsData = document.querySelector("#album-artists-data"),
+                            albumLabelData = document.querySelector("#album-label-data"),
+                            albumTracksData = document.querySelector("#album-tracks-data"),
+                            albumDateData = document.querySelector("#album-date-data"),
+                            albumUriData = document.querySelector("#album-uri-data"),
+                            albumImage = document.querySelector("#album-image");
+
+                        albumTitleData.innerText = data.name;
+                        albumTypeData.innerText = data.type;
+                        // TODO link to artist pages?
+                        albumArtistsData.innerText = data.artists.map(a => a.name).join(", ");
+                        albumLabelData.innerText = data.label;
+                        albumTracksData.innerText = `${data.total_tracks}`;
+                        albumDateData.innerText = data.release_date;
+                        albumUriData.innerText = data.uri;
+
+                        {
+                            albumImage.innerHTML = "";
+                            const img = document.createElement("img");
+                            img.src = data.images[0].url;
+                            albumImage.appendChild(img);
+                        }
+
+                        albumInfoContainer.classList.remove("hidden");
+
+                        selectedAlbum = data;
+                    })
+                    .finally(() => fetchButton.disabled = false);
+            };
+
+            nextCallback = () => {
+                if (!selectedAlbum) {
+                    alert("No album selected");
+                    return;
+                }
+
+                toggleStep(1);
+            };
+
+            fetchButton.addEventListener("click", () => updateAlbumid(albumidInput.value));
+
+            break;
+        }
+        case 1: {
+            // Step 2
+            const albumTitle = document.querySelector("#step2-album-title");
+            albumTitle.innerText = `${selectedAlbum.name} by ${selectedAlbum.artists.map(a => a.name).join(", ")}`;
+
+            const bracket = new Bracket(selectedAlbum.tracks.items);
+
+            let round = bracket.nextRound([]);
+            let winners = Array(round.matchups.length).fill(null);
+            let currentRound = 0;
+            let currentMatchup = 0;
+
+            let matchupStatusItems;
+
+            const updateMatchupDisplay = () => {
+                const matchup = round.matchups[currentMatchup];
+                const
+                    titleLeft = document.querySelector("#step2-item-left-title"),
+                    titleRight = document.querySelector("#step2-item-right-title"),
+                    matchupCount = document.querySelector("#step2-current-matchup"),
+                    totalMatchups = document.querySelector("#step2-total-matchups"),
+                    roundCount = document.querySelector("#step2-current-round"),
+                    totalRounds = document.querySelector("#step2-total-rounds");
+
+                matchupCount.innerText = `${currentMatchup + 1}`;
+                totalMatchups.innerText = `${round.matchups.length}`;
+                roundCount.innerText = `${currentRound + 1}`;
+                totalRounds.innerText = `${bracket.totalRounds}`;
+
+                titleLeft.innerText = matchup.left.name;
+                titleRight.innerText = matchup.right.name;
+
+                for (let i = 0; i < round.matchups.length; ++i) {
+                    const matchup = round.matchups[i];
+
+                    // Ignore bye matches
+                    if (matchup.left.hasOwnProperty("bye") || matchup.right.hasOwnProperty("bye")) continue;
+
+                    matchupStatusItems[i].innerText =
+                        (winners[i] === null
+                            ? "(undecided)"
+                            : (winners[i]
+                                ? round.matchups[i].left.name
+                                : round.matchups[i].right.name));
+                }
+            }
+
+            const reconstruct = () => {
+                const matchupStatus = document.querySelector("#step2-matchup-status");
+                const statusOl = matchupStatus.querySelector("ol");
+
+                statusOl.innerHTML = "";
+
+                matchupStatusItems = Array(round.matchups.length).fill(null)
+                    .map(() => document.createElement("li"));
+
+                matchupStatusItems.forEach((e, index) => {
+                    const i = index;
+
+                    const matchup = round.matchups[i];
+
+                    // Ignore bye matches
+                    if (matchup.left.hasOwnProperty("bye") || matchup.right.hasOwnProperty("bye")) {
+                        e.classList.add("bye");
+                        e.innerText = "(bye matchup)";
+                    } else {
+                        if (round.matchups[i])
+                            e.addEventListener("click", () => {
+                                currentMatchup = i;
+                                updateMatchupDisplay();
+                            });
+                    }
+
+                    statusOl.appendChild(e);
+                });
+            };
+
+            selectCallback = (left) => {
+                winners[currentMatchup] = left;
+                updateMatchupDisplay();
+            };
+
+            playCallback = (left) => {
+                const matchup = round.matchups[currentMatchup];
+                play(left ? matchup.left : matchup.right);
+            };
+
+            matchupCallback = () => {
+                for (let i = 1; i < round.matchups.length; ++i) {
+                    const newIndex = (currentMatchup + i) % (round.matchups.length);
+                    const newMatchup = round.matchups[newIndex];
+                    if (newMatchup.left.hasOwnProperty("bye") || newMatchup.right.hasOwnProperty("bye")) continue;
+                    currentMatchup = newIndex;
+                    break;
+                }
+                console.log(currentMatchup);
+                updateMatchupDisplay();
+            };
+
+            roundCallback = () => {
+                for (let i = 0; i < round.matchups.length; ++i) {
+                    const matchup = round.matchups[i];
+
+                    if (matchup.left.hasOwnProperty("bye") || matchup.right.hasOwnProperty("bye")) continue;
+
+                    if (winners[i] === null) {
+                        alert("You haven't selected winners for all matchups yet");
+                        return;
+                    }
+                }
+
+                round = bracket.nextRound(winners);
+
+                if (round.winner) {
+                    winner = round.winner;
+                    toggleStep(2);
+                    return;
+                }
+
+                winners = Array(round.matchups.length).fill(null);
+                currentMatchup = 0;
+                currentRound++;
+
+                reconstruct();
+                updateMatchupDisplay();
+            };
+
+            reconstruct();
+            updateMatchupDisplay();
+
+            break;
+        }
+        case 2: {
+            const iframe = document.querySelector("#step3 iframe");
+
+            const extUrl = winner.external_urls["spotify"];
+            const search = "spotify.com/"
+            const index = extUrl.indexOf(search) + search.length;
+            console.log(`a: '${extUrl.substring(0, index)}', b: '${extUrl.substring(index)}'`)
+
+            const split = winner.external_urls["spotify"].split("spotify.com/")
+            iframe.src = `${extUrl.substring(0, index)}embed/${extUrl.substring(index)}`;
+
+            break;
+        }
+    }
+}
+
+toggleStep(0);
+document.querySelector("#loading-container").classList.add("hidden");
+
+document.querySelector("#next").addEventListener("click", () => {
+    if (nextCallback) nextCallback();
+});
+
+document.querySelector("#step2-selector-left").addEventListener("click", () => {
+    if (selectCallback) selectCallback(true);
+});
+
+document.querySelector("#step2-selector-right").addEventListener("click", () => {
+    if (selectCallback) selectCallback(false);
+});
+
+document.querySelector("#step2-item-left .play").addEventListener("click", () => {
+    if (playCallback) playCallback(true);
+});
+
+document.querySelector("#step2-item-right .play").addEventListener("click", () => {
+    if (playCallback) playCallback(false);
+});
+
+document.querySelector("#step2-next-round").addEventListener("click", () => {
+    if (roundCallback) roundCallback();
+});
+
+document.querySelector("#step2-next-matchup").addEventListener("click", () => {
+    if (matchupCallback) matchupCallback();
+});
