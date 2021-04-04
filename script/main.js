@@ -198,6 +198,9 @@ function toggleStep(step) {
                 if (!selectedAlbum) {
                     alert("No album selected");
                     return;
+                } else if (selectedAlbum.total_tracks < 2) {
+                    alert("You can't rank singles! (at least 2 tracks required)");
+                    return;
                 }
 
                 toggleStep(1);
