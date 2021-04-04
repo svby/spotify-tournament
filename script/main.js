@@ -140,7 +140,7 @@ function toggleStep(step) {
             const albumidInput = document.querySelector("#albumid");
             const fetchButton = document.querySelector("#fetch");
             const updateAlbumid = (idInput) => {
-                const match = idInput.match(/spotify.com\/album\/(.+?)\?/);
+                const match = idInput.match(/spotify.com\/album\/([A-Za-z0-9]+)\??/);
                 const id = match ? match[1] : idInput;
 
                 fetchButton.disabled = true;
