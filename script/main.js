@@ -313,7 +313,7 @@ function toggleStep(step) {
                     totalRounds = document.querySelector("#step2-total-rounds");
 
                 matchupCount.innerText = `${currentMatchup + 1}`;
-                totalMatchups.innerText = `${round.matchups.length}`;
+                totalMatchups.innerText = `${round.matchups.filter(m => !(m.left.hasOwnProperty("bye") || m.right.hasOwnProperty("bye"))).length}`;
                 roundCount.innerText = `${currentRound + 1}`;
                 totalRounds.innerText = `${bracket.totalRounds}`;
 
