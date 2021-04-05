@@ -9,6 +9,32 @@ function shuffleArray(array) {
 }
 
 export class Bracket {
+    static createTestBracket() {
+        let test = new Bracket(
+            [
+                {name: "STFU"},
+                {name: "ROCKET SHIP Intro"},
+                {name: "Tim's Past"},
+                {name: "ROCKET SHIP"},
+                {name: "Interlude 2"},
+                {name: "KURT"},
+                {name: "Timmis"},
+                {name: "TOO FAMOUS"},
+                {name: "The Call"},
+                {name: "BACK UP (He's the Man)"},
+            ]
+        );
+        test.nextRound();
+        test.nextRound([
+            true, false
+        ]);
+        test.nextRound([false, true, true, true]);
+        test.nextRound([true, false]);
+        test.nextRound([false]);
+
+        return test;
+    }
+
     constructor(songs) {
         const songsShuffled = [...songs];
         shuffleArray(songsShuffled);
