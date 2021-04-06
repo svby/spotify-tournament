@@ -78,7 +78,10 @@ export default createStore({
       }
     },
 
-    getNewToken() {
+    getNewToken(context) {
+      // Remove old token
+      context.commit("setToken", { token: null, save: true });
+
       const currentLocation = window.location.href.split("?")[0];
 
       const params = new URLSearchParams([
