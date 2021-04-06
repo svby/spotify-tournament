@@ -1,0 +1,45 @@
+/* Modified from https://css.gg/chevron-left, https://css.gg/chevron-right */
+
+.gg-chevron-right {
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    border: 2px solid transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gg-chevron-right::after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    width: 10px;
+    height: 10px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    transform: rotate(-45deg);
+}
+
+.gg-chevron-left {
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    border: 2px solid transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gg-chevron-left::after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    width: 10px;
+    height: 10px;
+    border-bottom: 2px solid;
+    border-left: 2px solid;
+    transform: rotate(45deg);
+}
