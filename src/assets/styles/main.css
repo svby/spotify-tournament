@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+html, body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 11pt;
+    margin: 0;
+}
+
+#container {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid lightgray;
+}
+
+footer {
+    text-align: center;
+    font-size: 11pt;
+}
+
+footer p:not(:first-of-type) {
+    font-size: 80%;
+    margin: 3px;
+    color: gray;
+}
+
+footer p:not(:first-of-type) a {
+    color: inherit;
+}
+
+#modal-container {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.7);
+
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal {
+    max-width: 500px;
+    min-width: 300px;
+
+    margin: 0 auto;
+    border-radius: 3px;
+    border: 1px solid gray;
+    background: white;
+
+    padding: 15px;
+}
+
+.modal p:first-child {
+    margin-top: 0;
+}
+
+#modal-container.visible {
+    display: flex;
+}
+
+#modal-container.visible + #content-container {
+    filter: blur(8px);
+}
+
+#content-container {
+    max-width: 900px;
+    margin: 60px auto;
+}
+
+input[type=text] {
+    padding: 10px;
+    font-size: inherit;
+    margin: 0;
+    border: 1px solid gainsboro;
+    border-radius: 3px;
+}
+
+#objectId {
+    margin-top: 5px;
+    width: 400px;
+}
+
+#matchups li {
+    margin: 10px 0;
+}
+
+#matchups li span {
+    cursor: pointer;
+}
