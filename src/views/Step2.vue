@@ -1,6 +1,6 @@
 <template>
   <h2>Step 2: listen and rank</h2>
-  <p>Selected album: {{ displayTitle }}</p>
+  <p>Selected source: {{ displayTitle }}</p>
 
   <div id="step2-matchup-container">
     <div>

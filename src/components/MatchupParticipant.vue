@@ -6,7 +6,9 @@
     <div class="bg"><img :src="image" alt="Cover image" /></div>
     <div class="item-info">
       <p>{{ item.name }}</p>
-      <p>{{ artists }}</p>
+      <p>
+        <span v-if="showAlbum">{{ album }} &ndash;</span> {{ artists }}
+      </p>
       <a class="play" @click="playSong">Play on Spotify (requires active device)</a>
     </div>
   </div>
@@ -16,6 +18,7 @@
   import { computed, defineComponent, ref, toRefs, watch } from "vue";
   import { useStore } from "vuex";
   import { play } from "@/common/spotify";
+  import { Album } from "@/common/sources/album";
 
   export default defineComponent({
     name: "MatchupParticipant",
@@ -66,8 +69,14 @@
         }
       });
 
+      const album = computed(() => {
+        return store.state.source?.getTrackAlbum(item.value) ?? "N/A";
+      });
       const artists = computed(() => {
         return item.value.artists?.map((a: any) => a.name)?.join(", ") ?? "unknown";
+      });
+      const showAlbum = computed(() => {
+        return store.state.source && !(store.state.source instanceof Album);
       });
 
       const image = computed(() => {
@@ -82,8 +91,10 @@
         inactive,
         selected,
 
+        album,
         artists,
         image,
+        showAlbum,
 
         playSong,
       };

@@ -28,6 +28,12 @@ export class Album implements TrackSource {
 
     await fetchPaginated(data.tracks, data.tracks.next, token);
 
+    for (const track of data.tracks.items) {
+      // TODO: possibly copy album object, except without items
+      track["_albumName"] = data.name;
+      track["_albumImages"] = data.images;
+    }
+
     return new Album(data);
   }
 
@@ -61,6 +67,10 @@ export class Album implements TrackSource {
 
   get image(): string {
     return this.data.images[0].url;
+  }
+
+  getTrackAlbum(): string {
+    return this.data.name;
   }
 
   getTrackImage(): string {

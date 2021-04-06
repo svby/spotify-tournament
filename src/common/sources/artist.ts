@@ -82,7 +82,11 @@ export class Artist implements TrackSource {
     return this.data.images[0].url;
   }
 
-  getTrackImage(): string {
-    return this.image;
+  getTrackAlbum(track: any): string {
+    return track._albumName;
+  }
+
+  getTrackImage(track: any): string {
+    return track._albumImages[0].url;
   }
 }

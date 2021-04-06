@@ -64,6 +64,10 @@ export class Playlist implements TrackSource {
     return this.data.images[0].url;
   }
 
+  getTrackAlbum(track: any): string {
+    return track.album.name;
+  }
+
   getTrackImage(track: any): string {
     return track.album.images[0].url;
   }

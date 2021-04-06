@@ -68,6 +68,10 @@ export class SavedSongs implements TrackSource {
     return this.avatar;
   }
 
+  getTrackAlbum(track: any): string {
+    return track.album.name;
+  }
+
   getTrackImage(track: any): string {
     return track.album.images[0].url;
   }

@@ -14,6 +14,7 @@ export interface TrackSource {
 
   data: any;
 
+  getTrackAlbum(track: any): string;
   getTrackImage(track: any): string;
 }
 
