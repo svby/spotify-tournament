@@ -14,7 +14,7 @@ export class Playlist implements TrackSource {
     const data = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
       method: "GET",
       headers: new Headers({
-        Authorization: `${token.token_type} ${token.access_token}`,
+        Authorization: `${token.tokenType} ${token.accessToken}`,
       }),
     })
       .then((data) => data.json())

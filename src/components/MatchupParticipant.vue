@@ -7,7 +7,7 @@
     <div class="item-info">
       <p>{{ item.name }}</p>
       <p>{{ artists }}</p>
-      <a class="play">Play on Spotify (requires active device)</a>
+      <a class="play" @click="playSong">Play on Spotify (requires active device)</a>
     </div>
   </div>
 </template>
@@ -15,6 +15,7 @@
 <script lang="ts">
   import { computed, defineComponent, ref, toRefs, watch } from "vue";
   import { useStore } from "vuex";
+  import { play } from "@/common/spotify";
 
   export default defineComponent({
     name: "MatchupParticipant",
@@ -73,12 +74,18 @@
         return store.state.source?.getTrackImage(item.value) ?? "";
       });
 
+      const playSong = () => {
+        play(item.value.uri, store.state.token);
+      };
+
       return {
         inactive,
         selected,
 
         artists,
         image,
+
+        playSong,
       };
     },
   });

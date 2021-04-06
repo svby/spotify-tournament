@@ -44,3 +44,18 @@ export async function loadSource(objectType: string, objectId: string, token: an
       throw new Error(`Unknown object type ${objectType}`);
   }
 }
+
+export function play(songUri: string, token: any): void {
+  fetch(`https://api.spotify.com/v1/me/player/play`, {
+    method: "PUT",
+    headers: new Headers({
+      Authorization: `${token.tokenType} ${token.accessToken}`,
+      "Content-Type": "application/json",
+    }),
+    body: JSON.stringify({
+      uris: [songUri],
+    }),
+  }).catch((e) => {
+    alert(`Couldn't play song: ${e}`);
+  });
+}

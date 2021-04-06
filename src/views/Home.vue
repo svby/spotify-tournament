@@ -3,7 +3,9 @@
     <div id="content-container">
       <header>
         <router-link to="/"><h1>Spotify bracket</h1></router-link>
-        <p>Signed in as <span id="username">unknown</span></p>
+        <p>
+          Signed in as <span class="username">{{ username }}</span>
+        </p>
       </header>
 
       <hr />
@@ -25,17 +27,17 @@
     </div>
 
     <!-- TODO: improve modal -->
-    <div id="modal-container" class="visible">
+    <div id="modal-container" :class="[showLoginModal ? 'visible' : '']">
       <div id="login-modal" class="modal">
         <p>Sign in to Spotify:</p>
-        <button id="login-button">Sign in</button>
+        <button @click="login" id="login-button">Sign in</button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-  import { computed, defineComponent, onMounted } from "vue";
+  import { computed, defineComponent, onMounted, ref, watch } from "vue";
   import { useStore } from "vuex";
 
   import Navigation from "@/components/Navigation.vue";
@@ -43,72 +45,74 @@
   import Step2 from "./Step2.vue";
   import Step3 from "./Step3.vue";
 
+  import { getTime } from "@/common/util";
+
   export default defineComponent({
     name: "Home",
     components: { Navigation, Step1, Step2, Step3 },
 
     setup() {
       const store = useStore();
+      const token = computed(() => store.state.token);
 
-      const currentStepComponent = computed(() => store.state.currentStep);
+      const showLoginModal = ref(false);
+      onMounted(() => {
+        const savedToken = localStorage.getItem("token");
+        const pageFragment = window.location.hash.slice(1);
 
-      let token: any;
+        let tokenRetrieved = false;
+        if (savedToken) {
+          const parsedToken = Object.freeze(JSON.parse(savedToken));
 
-      function getTime() {
-        return Math.floor(new Date().getTime() / 1000);
-      }
-
-      const fetchNewToken = () => {
-        const currentLocation = window.location.href.split("?")[0];
-
-        const params = new URLSearchParams([
-          ["client_id", "1189301921ea4fd9872c18ce32944382"],
-          ["response_type", "token"],
-          ["redirect_uri", currentLocation],
-          // state,
-          ["scope", "playlist-read-private user-modify-playback-state"],
-          ["show_dialog", "false"],
-        ]);
-        const authUrl = `https://accounts.spotify.com/authorize?${params.toString()}`;
-
-        window.location.href = authUrl;
-      };
-
-      function tryLoadToken() {
-        document.getElementById("modal-container")!.classList.add("visible");
-
-        // Fetch login token if this is a callback
-        const pageAnchor = window.location.hash.slice(1);
-        if (pageAnchor) {
-          console.log("Access token received");
-          const newToken: any = {};
-          for (const [k, v] of pageAnchor.split("&").map((kv) => kv.split("="))) {
-            newToken[k] = v;
-          }
-          token = Object.freeze(newToken);
-
-          // Store token
-          localStorage.setItem("token", JSON.stringify(token));
-
-          // Remove hash
-          history.replaceState({}, document.title, ".");
-        } else {
-          // Fetch from local storage if present
-          const saved = localStorage.getItem("token");
-          if (saved) {
-            const savedToken = JSON.parse(saved);
-            if (savedToken.expires_in < getTime()) {
-              token = savedToken;
-            }
+          if ((Number(parsedToken.expiresAt) | 0) > getTime() - 10) {
+            // Token should still be valid
+            store.commit("setToken", {
+              token: parsedToken,
+              save: false,
+            });
+            tokenRetrieved = true;
           }
         }
 
-        if (token) {
-          const username = document.querySelector("#username");
+        if (!tokenRetrieved) {
+          if (pageFragment) {
+            // Try to obtain new token from URL fragment
+            const fragmentParams = new Map<string, string>();
+            for (const [key, value] of pageFragment.split("&").map((kv) => kv.split("=")))
+              fragmentParams.set(key, value);
+
+            const newToken = Object.freeze({
+              accessToken: fragmentParams.get("access_token"),
+              tokenType: fragmentParams.get("token_type"),
+              expiresAt: getTime() + Number(fragmentParams.get("expires_in")),
+            });
+
+            // Store token
+            localStorage.setItem("token", JSON.stringify(newToken));
+
+            // Remove hash
+            history.replaceState({}, document.title, ".");
+          } else {
+            // No token, show modal
+            showLoginModal.value = true;
+          }
+        }
+      });
+
+      const user = ref<any | null>(null);
+      const username = computed(() => user.value?.display_name ?? "unknown");
+      const login = () => {
+        store.dispatch("fetchToken");
+      };
+
+      const currentStepComponent = computed(() => store.state.currentStep);
+
+      watch(token, (value) => {
+        if (value) {
           fetch(`https://api.spotify.com/v1/me`, {
             method: "GET",
             headers: new Headers({
-              Authorization: `${token.token_type} ${token.access_token}`,
+              Authorization: `${token.value.tokenType} ${token.value.accessToken}`,
             }),
           })
             .then((data) => data.json())
@@ -116,29 +120,26 @@
               if (data.error) {
                 alert(`Error: ${data.error.message}`);
                 if (data.error.message.includes("token expire")) {
-                  localStorage.removeItem("token");
-                  token = null;
-                  tryLoadToken();
+                  store.commit("setToken", { token: null, save: true });
+                  showLoginModal.value = true;
                 } else {
                   alert(`Couldn't fetch user information: ${data.error.message}`);
                 }
                 return;
               }
-              username!.textContent = data.display_name;
+
+              user.value = data;
             });
-
-          // Hide login modal
-          document.getElementById("modal-container")!.classList.remove("visible");
         }
-      }
-
-      onMounted(() => {
-        const loginButton = document.getElementById("login-button");
-        loginButton!.addEventListener("click", () => fetchNewToken());
-        tryLoadToken();
       });
 
       return {
+        showLoginModal,
+
+        user,
+        username,
+        login,
+
         currentStepComponent,
       };
     },
@@ -152,4 +153,7 @@
   header a
     color: inherit
     text-decoration: none
+
+  .username
+    font-weight bold
 </style>
