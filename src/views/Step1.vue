@@ -8,15 +8,21 @@
     <input type="radio" id="objtype2" value="album" v-model="objectType" />
     <label for="objtype2">Album</label>
 
-    <!--TODO: artists-->
-    <!--<input type="radio" id="objtype3" name="objectType" value="artist">-->
-    <!--<label for="objtype3">Artist</label>-->
+    <input type="radio" id="objtype3" value="artist" v-model="objectType" />
+    <label for="objtype3">Artist</label>
+
+    <input type="radio" id="objtype4" value="saved" v-model="objectType" />
+    <label for="objtype4">Saved songs</label>
   </div>
 
-  <label for="objectId">{{ promptText }}:</label>
-  <br />
+  <label :class="{ hidden: objectType === 'saved' }" for="objectId">{{ promptText }}:</label>
+  <template v-if="objectType === 'saved'">
+    <p>
+      <i><b>Note</b>: fetching saved songs may take a few minutes!</i>
+    </p>
+  </template>
   <div>
-    <input v-model="objectId" id="objectId" type="text" />
+    <input :class="{ hidden: objectType === 'saved' }" v-model="objectId" id="objectId" type="text" />
     <button @click="onFetchClicked" :disabled="!fetchEnabled" id="fetch">Fetch</button>
   </div>
 
@@ -65,13 +71,9 @@
       });
 
       const onFetchClicked = () => {
-        console.log(`Fetching ${objectInput.value}`);
         fetchEnabled.value = false;
 
-        // TODO: add token to Vuex
-        const token = JSON.parse(localStorage.getItem("token") ?? "{}");
-
-        loadSource(objectType.value, objectInput.value, token)
+        loadSource(store, objectType.value, objectInput.value)
           .then((source) => {
             if (source.data.error) {
               alert(`Error loading source: ${source.data.error.message}`);
@@ -107,4 +109,10 @@
 
 <style lang="stylus" scoped>
   @import "../assets/styles/common.styl"
+
+  .hidden
+    display: none
+
+  #objectId
+    margin-right: 5px
 </style>

@@ -75,7 +75,7 @@
       });
 
       const playSong = () => {
-        play(item.value.uri, store.state.token);
+        play(store.state.token, item.value.uri);
       };
 
       return {

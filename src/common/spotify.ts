@@ -1,5 +1,8 @@
+import { Store } from "vuex";
 import { Album } from "@/common/sources/album";
 import { Playlist } from "@/common/sources/playlist";
+import { Artist } from "@/common/sources/artist";
+import { SavedSongs } from "@/common/sources/saved";
 
 export interface TrackSource {
   displayFields: Map<string, unknown>;
@@ -21,6 +24,10 @@ export function stringToSourceType(objectType: string): any {
       return Album;
     case "playlist":
       return Playlist;
+    case "artist":
+      return Artist;
+    case "saved":
+      return SavedSongs;
     default:
       throw new Error(`Unknown object type ${objectType}`);
   }
@@ -29,23 +36,33 @@ export function stringToSourceType(objectType: string): any {
 const OBJECT_TYPE_EXPRESSIONS = Object.freeze({
   album: /spotify.com\/album\/([A-Za-z0-9]+)\??/,
   playlist: /spotify.com\/playlist\/([A-Za-z0-9]+)\??/,
+  artist: /spotify.com\/artist\/([A-Za-z0-9]+)\??/,
   id: /([A-Za-z0-9]+)/,
 });
 
-export async function loadSource(objectType: string, objectId: string, token: any): Promise<TrackSource> {
+export async function loadSource(store: Store<any>, objectType: string, objectId: string): Promise<TrackSource> {
   // TODO: simplify
   switch (objectType) {
     case "album": {
       const match = objectId.match(OBJECT_TYPE_EXPRESSIONS["album"]);
       const id = match ? match[1] : objectId;
 
-      return await Album.fetch(id, token);
+      return await Album.fetch(store, id);
     }
     case "playlist": {
       const match = objectId.match(OBJECT_TYPE_EXPRESSIONS["playlist"]);
       const id = match ? match[1] : objectId;
 
-      return await Playlist.fetch(id, token);
+      return await Playlist.fetch(store, id);
+    }
+    case "artist": {
+      const match = objectId.match(OBJECT_TYPE_EXPRESSIONS["artist"]);
+      const id = match ? match[1] : objectId;
+
+      return await Artist.fetch(store, id);
+    }
+    case "saved": {
+      return await SavedSongs.fetch(store);
     }
     default:
       throw new Error(`Unknown object type ${objectType}`);
@@ -66,7 +83,7 @@ export function inferSourceData(input: string): { success: boolean; data?: { obj
   return { success: false };
 }
 
-export function play(songUri: string, token: any): void {
+export function play(token: any, songUri: string): void {
   fetch(`https://api.spotify.com/v1/me/player/play`, {
     method: "PUT",
     headers: new Headers({

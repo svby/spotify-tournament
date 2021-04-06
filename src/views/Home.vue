@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-  import { computed, defineComponent, ref, watch } from "vue";
+  import { computed, defineComponent, watch } from "vue";
   import { useStore } from "vuex";
 
   import Navigation from "@/components/Navigation.vue";
@@ -53,8 +53,8 @@
       const store = useStore();
 
       const token = computed(() => store.state.token);
+      const user = computed(() => store.state.user);
 
-      const user = ref(null);
       const updateUser = () => {
         if (!token.value) return;
 
@@ -70,7 +70,7 @@
             return data;
           })
           .then((data) => {
-            user.value = data;
+            store.commit("setUser", data);
           })
           .catch((error) => {
             alert(`Could not fetch user: ${error}`);

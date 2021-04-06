@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { Store } from "vuex";
 import { TrackSource } from "@/common/spotify";
 import { fetchPaginated } from "@/common/util";
 
@@ -10,7 +11,9 @@ export class Album implements TrackSource {
     return "Enter an album URL or ID here";
   }
 
-  static async fetch(id: string, token: any): Promise<Album> {
+  static async fetch(store: Store<any>, id: string): Promise<Album> {
+    const token = store.state.token;
+
     const data = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
       method: "GET",
       headers: new Headers({

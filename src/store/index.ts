@@ -8,6 +8,7 @@ export default createStore({
     source: null,
     bracket: new Bracket([]),
     token: null,
+    user: null,
   },
   mutations: {
     updateSource(state, newSource) {
@@ -22,6 +23,10 @@ export default createStore({
           localStorage.setItem("token", JSON.stringify(payload.token));
         } else localStorage.removeItem("token");
       }
+    },
+
+    setUser(state, user) {
+      state.user = user;
     },
 
     gotoStep2(state) {
@@ -81,7 +86,7 @@ export default createStore({
         ["response_type", "token"],
         ["redirect_uri", currentLocation],
         // state,
-        ["scope", "playlist-read-private user-modify-playback-state"],
+        ["scope", "playlist-read-private user-library-read user-modify-playback-state"],
         ["show_dialog", "false"],
       ]);
       const authUrl = `https://accounts.spotify.com/authorize?${params.toString()}`;
