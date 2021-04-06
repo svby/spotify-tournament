@@ -99,6 +99,11 @@ export default createStore({
 
       return;
     },
+
+    discardToken(context) {
+      context.commit("setToken", { token: null, save: true });
+      context.commit("setUser", null);
+    },
   },
   modules: {},
 });

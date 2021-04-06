@@ -3,8 +3,11 @@
     <div id="content-container">
       <header>
         <router-link to="/"><h1>Spotify bracket</h1></router-link>
-        <p>
-          Signed in as <span class="username">{{ user?.display_name ?? "unknown" }}</span>
+        <p v-if="!user"><b>Not signed in</b></p>
+        <p v-else>
+          Signed in as <span class="username">{{ user.display_name }}</span>
+
+          (<span @click="logout" class="logout">sign out</span>)
         </p>
       </header>
 
@@ -138,6 +141,7 @@
       const currentStepComponent = computed(() => store.state.currentStep);
 
       const login = () => store.dispatch("getNewToken");
+      const logout = () => store.dispatch("discardToken");
 
       return {
         user,
@@ -154,6 +158,7 @@
         activateDeviceAndPlay,
 
         login,
+        logout,
       };
     },
   });
@@ -169,6 +174,10 @@
 
   .username
       font-weight bold
+
+  .logout
+    text-decoration: underline
+    cursor: pointer
 
   label
     display: block
