@@ -26,16 +26,23 @@ export function stringToSourceType(objectType: string): any {
   }
 }
 
+const OBJECT_TYPE_EXPRESSIONS = Object.freeze({
+  album: /spotify.com\/album\/([A-Za-z0-9]+)\??/,
+  playlist: /spotify.com\/playlist\/([A-Za-z0-9]+)\??/,
+  id: /([A-Za-z0-9]+)/,
+});
+
 export async function loadSource(objectType: string, objectId: string, token: any): Promise<TrackSource> {
+  // TODO: simplify
   switch (objectType) {
     case "album": {
-      const match = objectId.match(/spotify.com\/album\/([A-Za-z0-9]+)\??/);
+      const match = objectId.match(OBJECT_TYPE_EXPRESSIONS["album"]);
       const id = match ? match[1] : objectId;
 
       return await Album.fetch(id, token);
     }
     case "playlist": {
-      const match = objectId.match(/spotify.com\/playlist\/([A-Za-z0-9]+)\??/);
+      const match = objectId.match(OBJECT_TYPE_EXPRESSIONS["playlist"]);
       const id = match ? match[1] : objectId;
 
       return await Playlist.fetch(id, token);
@@ -43,6 +50,20 @@ export async function loadSource(objectType: string, objectId: string, token: an
     default:
       throw new Error(`Unknown object type ${objectType}`);
   }
+}
+
+export function inferSourceData(input: string): { success: boolean; data?: { objectType: string; objectId: string } } {
+  for (const [objectType, regex] of Object.entries(OBJECT_TYPE_EXPRESSIONS)) {
+    const match = input.match(regex);
+    if (match) {
+      return {
+        success: true,
+        data: { objectType, objectId: match[1] },
+      };
+    }
+  }
+
+  return { success: false };
 }
 
 export function play(songUri: string, token: any): void {

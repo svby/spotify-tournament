@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts">
-  import { computed, defineComponent, ref } from "vue";
+  import { computed, defineComponent, ref, watch } from "vue";
   import { useStore } from "vuex";
-  import { loadSource, stringToSourceType } from "@/common/spotify";
+  import { inferSourceData, loadSource, stringToSourceType } from "@/common/spotify";
 
   import PropTable from "@/components/PropTable.vue";
 
@@ -48,7 +48,7 @@
       const store = useStore();
 
       const objectType = ref("playlist");
-      const objectId = ref("");
+      const objectInput = ref("");
       const fetchEnabled = ref(true);
 
       const source = computed(() => store.state.source);
@@ -56,14 +56,22 @@
       const tableData = computed(() => source.value?.displayFields ?? new Map());
       const coverImage = computed(() => source.value?.image ?? "");
 
+      const inferredSourceData = computed(() => inferSourceData(objectInput.value));
+
+      watch(inferredSourceData, (value) => {
+        if (value.success && value.data?.objectType !== "id") {
+          objectType.value = value.data?.objectType ?? "playlist";
+        }
+      });
+
       const onFetchClicked = () => {
-        console.log(`Fetching ${objectId.value}`);
+        console.log(`Fetching ${objectInput.value}`);
         fetchEnabled.value = false;
 
         // TODO: add token to Vuex
         const token = JSON.parse(localStorage.getItem("token") ?? "{}");
 
-        loadSource(objectType.value, objectId.value, token)
+        loadSource(objectType.value, objectInput.value, token)
           .then((source) => {
             if (source.data.error) {
               alert(`Error loading source: ${source.data.error.message}`);
@@ -82,7 +90,7 @@
 
       return {
         objectType,
-        objectId,
+        objectId: objectInput,
         fetchEnabled,
 
         source,
