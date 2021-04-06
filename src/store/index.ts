@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import Bracket from "@/common/bracket";
+import { getTime } from "@/common/util";
 
 export default createStore({
   state: {
@@ -32,7 +33,47 @@ export default createStore({
     },
   },
   actions: {
-    fetchToken() {
+    loadToken(context) {
+      const savedToken = localStorage.getItem("token");
+      const pageFragment = window.location.hash.slice(1);
+
+      if (savedToken) {
+        const parsedToken = Object.freeze(JSON.parse(savedToken));
+
+        if ((Number(parsedToken.expiresAt) | 0) > getTime() - 10) {
+          // Token should still be valid
+          context.commit("setToken", {
+            token: parsedToken,
+            save: false,
+          });
+          return;
+        }
+      }
+
+      if (pageFragment) {
+        // Try to obtain new token from URL fragment
+        const fragmentParams = new Map<string, string>();
+        for (const [key, value] of pageFragment.split("&").map((kv) => kv.split("="))) fragmentParams.set(key, value);
+
+        const newToken = Object.freeze({
+          accessToken: fragmentParams.get("access_token"),
+          tokenType: fragmentParams.get("token_type"),
+          expiresAt: getTime() + Number(fragmentParams.get("expires_in")),
+        });
+
+        // Store token
+        context.commit("setToken", { token: newToken, save: true });
+
+        // Remove hash
+        setTimeout(() => {
+          history.replaceState({}, document.title, ".");
+        }, 0);
+      } else {
+        // No token
+      }
+    },
+
+    getNewToken() {
       const currentLocation = window.location.href.split("?")[0];
 
       const params = new URLSearchParams([

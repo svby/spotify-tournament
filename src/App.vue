@@ -5,6 +5,7 @@
 
 <script lang="ts">
   import { defineComponent } from "vue";
+  import { useStore } from "vuex";
   import OctocatCorner from "@/components/OctocatCorner.vue";
 
   export default defineComponent({
@@ -12,6 +13,10 @@
     components: { OctocatCorner },
 
     setup() {
+      const store = useStore();
+
+      store.dispatch("loadToken");
+
       return {};
     },
   });
