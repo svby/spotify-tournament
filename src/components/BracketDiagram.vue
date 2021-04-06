@@ -35,8 +35,6 @@
         const vbwidth = boxSize[0] + bracketSize * (levels + 1);
         const vbheight = participants * boxSize[1] + (participants - 1) * boxGap;
 
-        console.log(vbwidth, vbheight);
-
         let draw = SVG();
         draw.viewbox(-10, -10, vbwidth + 20, vbheight + 20);
 
@@ -113,7 +111,6 @@
 
             let drawBracket = true;
 
-            console.log(level, participant, interval);
             if (
               level === 0 &&
               (Object.prototype.hasOwnProperty.call(bracket.participantsWithByes[participant], "bye") ||
@@ -219,12 +216,7 @@
         }
       };
 
-      onMounted(() => {
-        console.log("step3 mounted");
-        console.log(container.value);
-        redraw();
-      });
-
+      onMounted(() => redraw());
       watch(winner, () => redraw());
 
       return {

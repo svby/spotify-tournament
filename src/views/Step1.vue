@@ -57,7 +57,7 @@
       const coverImage = computed(() => source.value?.image ?? "");
 
       const onFetchClicked = () => {
-        console.log(objectId.value);
+        console.log(`Fetching ${objectId.value}`);
         fetchEnabled.value = false;
 
         // TODO: add token to Vuex

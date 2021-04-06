@@ -36,7 +36,7 @@ export class Album implements TrackSource {
     return new Map([
       ["Type", this.data.type],
       ["Title", this.data.name],
-      ["Artists", this.data.artists.map((a: any) => a.name)],
+      ["Artists", this.data.artists.map((a: any) => a.name).join(", ")],
       ["Label", this.data.label],
       ["Track count", this.data.total_tracks],
       ["Release date", this.data.release_date],

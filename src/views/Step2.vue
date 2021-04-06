@@ -90,9 +90,7 @@
           ).length
       );
       const canAdvance = computed(() => {
-        console.log(`computed`);
         const matchups = bracket.value.currentRound;
-        console.log(matchups);
         if (!matchups) return false;
 
         for (let i = 0; i < matchups.length; ++i) {
@@ -104,7 +102,6 @@
           )
             continue;
 
-          console.log(`${i}: ${winners.value[i]}`);
           if (winners.value[i] === null) return false;
         }
 

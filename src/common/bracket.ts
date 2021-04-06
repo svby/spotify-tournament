@@ -44,8 +44,6 @@ export default class Bracket {
   }
 
   constructor(songs: Array<any>) {
-    console.log(songs);
-
     const songsShuffled = [...songs];
     shuffleArray(songsShuffled);
     this.participants = songsShuffled;
@@ -114,7 +112,6 @@ export default class Bracket {
       this.roundResults.push([]);
     } else {
       const lastMatchup = this.generatedMatchups[this.generatedMatchups.length - 1];
-      console.log(lastMatchup);
 
       // Fill/trim empty space
       winners = winners.slice(0, Math.min(winners.length, lastMatchup.length));
