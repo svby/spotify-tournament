@@ -15,9 +15,8 @@
 </template>
 
 <script lang="ts">
-  import { computed, defineComponent, ref, toRefs, watch } from "vue";
+  import { computed, defineComponent, inject, ref, toRefs, watch } from "vue";
   import { useStore } from "vuex";
-  import { play } from "@/common/spotify";
   import { Album } from "@/common/sources/album";
 
   export default defineComponent({
@@ -48,6 +47,9 @@
     setup(props) {
       const store = useStore();
       const { modelValue, itemValue, item } = toRefs(props);
+
+      const playTrack = inject<(uri: string) => void>("playTrack");
+      if (!playTrack) throw new Error("No value for playTrack was injected");
 
       // TODO: these could probably be computed values
       const inactive = ref(false);
@@ -83,9 +85,7 @@
         return store.state.source?.getTrackImage(item.value) ?? "";
       });
 
-      const playSong = () => {
-        play(store.state.token, item.value.uri);
-      };
+      const playSong = () => playTrack(item.value.uri);
 
       return {
         inactive,

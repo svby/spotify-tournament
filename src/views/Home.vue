@@ -25,32 +25,85 @@
         </p>
       </footer>
     </div>
-
-    <!-- TODO: improve modal -->
-    <div id="modal-container" :class="[showLoginModal ? 'visible' : '']">
-      <div id="login-modal" class="modal">
-        <p>Sign in to Spotify:</p>
-        <button @click="login" id="login-button">Sign in</button>
-      </div>
-    </div>
   </div>
+
+  <ModalDialog :visible="showLoginModal">
+    <h1>Sign in to Spotify</h1>
+    <p>Click here to sign in with Spotify:</p>
+    <button @click="login">Sign in</button>
+  </ModalDialog>
+
+  <ModalDialog closeable v-model:visible="showDeviceModal">
+    <h1>Choose playback device</h1>
+    <p>
+      <label for="playbackDevice">Choose a device for playback:</label>
+      <select id="playbackDevice" v-model="selectedDeviceId">
+        <option v-for="device in validDevices" :key="device.id" :value="device.id">
+          {{ device.name }}
+        </option>
+      </select>
+    </p>
+    <button @click="activateDeviceAndPlay" :disabled="!playEnabled">Play</button>
+  </ModalDialog>
 </template>
 
 <script lang="ts">
-  import { computed, defineComponent, watch } from "vue";
+  import { computed, defineComponent, provide, ref, watch } from "vue";
   import { useStore } from "vuex";
 
   import Navigation from "@/components/Navigation.vue";
   import Step1 from "./Step1.vue";
   import Step2 from "./Step2.vue";
   import Step3 from "./Step3.vue";
+  import ModalDialog from "@/components/ModalDialog.vue";
+  import { activateDevice, getDevices, play } from "@/common/spotify";
 
   export default defineComponent({
     name: "Home",
-    components: { Navigation, Step1, Step2, Step3 },
+    components: { ModalDialog, Navigation, Step1, Step2, Step3 },
 
     setup() {
       const store = useStore();
+
+      const trackToPlay = ref("");
+      const devices = ref<Array<any>>([]);
+      const validDevices = computed(() => {
+        return devices.value.filter((d) => !d.is_restricted);
+      });
+      const selectedDeviceId = ref("");
+      const playEnabled = ref(true);
+      const showDeviceModal = ref(false);
+
+      const playTrack = (uri: string) => {
+        getDevices(store.state.token).then((data) => {
+          trackToPlay.value = uri;
+          devices.value = data;
+          if (data) {
+            selectedDeviceId.value = data[0].id;
+          }
+          showDeviceModal.value = true;
+        });
+      };
+      provide("playTrack", playTrack);
+
+      watch(showDeviceModal, (value) => {
+        if (!value) {
+          trackToPlay.value = "";
+          devices.value = [];
+          playEnabled.value = true;
+        }
+      });
+
+      const activateDeviceAndPlay = () => {
+        playEnabled.value = false;
+        activateDevice(store.state.token, selectedDeviceId.value)
+          .then(() => {
+            return play(store.state.token, trackToPlay.value);
+          })
+          .then(() => {
+            showDeviceModal.value = false;
+          });
+      };
 
       const token = computed(() => store.state.token);
       const user = computed(() => store.state.user);
@@ -92,13 +145,21 @@
         showLoginModal,
         currentStepComponent,
 
+        trackToPlay,
+        validDevices,
+        selectedDeviceId,
+        playEnabled,
+        showDeviceModal,
+
+        activateDeviceAndPlay,
+
         login,
       };
     },
   });
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   @import url("../assets/styles/main.css")
   @import url("../assets/styles/tournament.css")
 
@@ -107,5 +168,12 @@
     text-decoration: none
 
   .username
-    font-weight bold
+      font-weight bold
+
+  label
+    display: block
+
+  .modal h1
+    font-size: 18pt
+    margin-top: 0
 </style>

@@ -15,6 +15,7 @@ export interface TrackSource {
   data: any;
 
   getTrackAlbum(track: any): string;
+
   getTrackImage(track: any): string;
 }
 
@@ -82,6 +83,35 @@ export function inferSourceData(input: string): { success: boolean; data?: { obj
   }
 
   return { success: false };
+}
+
+export async function getDevices(token: any): Promise<Array<any>> {
+  return await fetch(`https://api.spotify.com/v1/me/player/devices`, {
+    method: "GET",
+    headers: new Headers({
+      Authorization: `${token.tokenType} ${token.accessToken}`,
+      "Content-Type": "application/json",
+    }),
+  })
+    .then((data) => data.json())
+    .then((data) => {
+      if (data.error) throw new Error(`Error loading devices: ${data.error.message}`);
+      return data.devices;
+    });
+}
+
+export async function activateDevice(token: any, deviceId: string): Promise<Response> {
+  return await fetch(`https://api.spotify.com/v1/me/player`, {
+    method: "PUT",
+    headers: new Headers({
+      Authorization: `${token.tokenType} ${token.accessToken}`,
+      "Content-Type": "application/json",
+    }),
+    body: JSON.stringify({
+      device_ids: [deviceId],
+      play: false,
+    }),
+  });
 }
 
 export function play(token: any, songUri: string): void {

@@ -89,7 +89,7 @@ export default createStore({
         ["response_type", "token"],
         ["redirect_uri", currentLocation],
         // state,
-        ["scope", "playlist-read-private user-library-read user-modify-playback-state"],
+        ["scope", "playlist-read-private user-library-read user-modify-playback-state user-read-playback-state"],
         ["show_dialog", "false"],
       ]);
       const authUrl = `https://accounts.spotify.com/authorize?${params.toString()}`;

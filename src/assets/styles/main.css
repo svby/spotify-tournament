@@ -44,18 +44,6 @@ footer p:not(:first-of-type) a {
     justify-content: center;
 }
 
-.modal {
-    max-width: 500px;
-    min-width: 300px;
-
-    margin: 0 auto;
-    border-radius: 3px;
-    border: 1px solid gray;
-    background: white;
-
-    padding: 15px;
-}
-
 .modal p:first-child {
     margin-top: 0;
 }
