@@ -53,7 +53,7 @@ export class Playlist implements TrackSource {
   }
 
   get trackCount(): number {
-    return this.data.total_tracks;
+    return this.data.tracks.total;
   }
 
   get tracks(): Array<any> {

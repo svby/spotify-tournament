@@ -35,7 +35,10 @@
       </div>
     </div>
 
-    <button @click="advance" class="primary-button">Next</button>
+    <p>
+      <button :disabled="!canAdvance" @click="advance" class="primary-button">Next</button>
+      <span class="diagnostic" v-if="!canAdvance">The selected source must have at least 2 tracks!</span>
+    </p>
   </div>
 </template>
 
@@ -63,6 +66,7 @@
       const coverImage = computed(() => source.value?.image ?? "");
 
       const inferredSourceData = computed(() => inferSourceData(objectInput.value));
+      const canAdvance = computed(() => source.value?.trackCount >= 2);
 
       watch(inferredSourceData, (value) => {
         if (value.success && value.data?.objectType !== "id") {
@@ -87,6 +91,7 @@
       };
 
       const advance = () => {
+        if (!canAdvance.value) return;
         store.commit("gotoStep2");
       };
 
@@ -94,6 +99,8 @@
         objectType,
         objectId: objectInput,
         fetchEnabled,
+
+        canAdvance,
 
         source,
         promptText,
@@ -115,4 +122,8 @@
 
   #objectId
     margin-right: 5px
+
+  .diagnostic
+    margin-left: 10px
+    color: red
 </style>
